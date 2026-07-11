@@ -28,6 +28,9 @@ Browser:
 - http://127.0.0.1:8000/health
 - http://127.0.0.1:8000/greet
 
+![Health endpoint output](screenshots/health.png)
+![Greet endpoint output](screenshots/greet.png)
+
 curl:
 - `curl http://127.0.0.1:8000/health`
 - `curl http://127.0.0.1:8000/greet`
