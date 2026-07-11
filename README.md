@@ -7,10 +7,6 @@ Exposes two JSON endpoints:
 - `GET /greet` — returns a greeting message
 
 ## Running locally
-Follow these steps to run on your Pc
-
-## Running locally
-
 Follow these steps to run on your PC
 
 ```
