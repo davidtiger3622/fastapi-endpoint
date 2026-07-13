@@ -3,3 +3,4 @@ CREATE TABLE IF NOT EXISTS notes (
     title TEXT NOT NULL,
     content TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS idx_notes_title ON notes (title);
