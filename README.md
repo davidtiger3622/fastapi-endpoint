@@ -49,3 +49,30 @@ Run `docker compose up --build`. This starts the app on `http://127.0.0.1:8000` 
 3. `curl http://127.0.0.1:8000/notes` — confirms the note exists
 4. Stopped the stack (`Ctrl+C`), ran `docker compose up` again (no rebuild)
 5. `curl http://127.0.0.1:8000/notes` — same note still returned, confirming the named volume (`pg_data`) preserved the data across a full container restart
+
+## Stretch: Redis
+
+Added a `redis` service to `docker-compose.yml` and a `GET /cache-check` endpoint that writes and reads a value from Redis, confirming connectivity end-to-end.
+
+## Stretch: Index + EXPLAIN ANALYZE
+
+Seeded `notes` with 50,000 rows (`db/seed.sql`) plus one row with a distinct title (`target-note`), then compared `EXPLAIN ANALYZE SELECT * FROM notes WHERE title = 'target-note'` before and after adding an index.
+
+**Before** (`Seq Scan`, scanned all 50,001 rows):
+
+```
+Seq Scan on notes  (cost=0.00..1041.01 rows=1 width=34) (actual time=1.881..3.795 rows=1 loops=1)
+  Filter: (title = 'target-note'::text)
+  Rows Removed by Filter: 50000
+Execution Time: 3.833 ms
+```
+
+**After** adding `CREATE INDEX idx_notes_title ON notes (title);`:
+
+```
+Index Scan using idx_notes_title on notes  (cost=0.29..8.31 rows=1 width=34) (actual time=0.031..0.032 rows=1 loops=1)
+  Index Cond: (title = 'target-note'::text)
+Execution Time: 0.065 ms
+```
+
+Execution time dropped from ~3.83 ms to ~0.065 ms — roughly a 59x speedup, since Postgres no longer scans every row.
