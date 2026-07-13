@@ -1,3 +1,5 @@
+import os
+import redis
 from fastapi import FastAPI, Depends
 
 from models import Note, NoteCreate
@@ -7,6 +9,7 @@ from db_repository import PostgresNoteRepository
 app = FastAPI()
 
 _repository = PostgresNoteRepository()
+_redis = redis.from_url(os.environ["REDIS_URL"], decode_responses=True)
 
 
 def get_repository() -> NoteRepository:
@@ -31,3 +34,10 @@ def list_notes(repo: NoteRepository = Depends(get_repository)) -> list[Note]:
 @app.post("/notes")
 def create_note(note: NoteCreate, repo: NoteRepository = Depends(get_repository)) -> Note:
     return repo.create_note(note)
+
+
+@app.get("/cache-check")
+def cache_check():
+    _redis.set("last_check", "ok")
+    value = _redis.get("last_check")
+    return {"redis": value}
